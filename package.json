@@ -1,0 +1,20 @@
+{
+  "name": "project255",
+  "version": "1.0.0",
+  "main": "main.js",
+  "dependencies": {
+    "alea": "0.0.9",
+    "bot-web-interface": "git+https://github.com/Fansana/bot-web-interface.git",
+    "nanotimer": "^0.3.15",
+    "pngjs-image": "^0.11.7",
+    "simplex-noise": "^2.3.0",
+    "socket.io": "^2.0.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
