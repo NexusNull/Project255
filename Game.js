@@ -5,15 +5,27 @@
 var Server = require("./Network/Server");
 var Client = require("./Network/Client");
 
+/**
+ * @property {object} worlds
+ * @property {Array<Entity>} entities
+ * @property {Array<Client>} clients
+ * @property {Server} server
+ * @property {number} tickSpeed - default 100
+ * @property {number} adjustedTickSpeed
+ * @property {boolean} adjustingTickSpeed - default true
+ * @constructor Game
+ */
+
 var Game = function () {
     this.worlds = {};
     this.entities = [];
     this.clients = [];
     this.server = new Server(this);
-    this.server.openSocket();
-    this.tickSpeed = 100;
+    this.tickSpeed = 0;
     this.adjustedTickSpeed = this.tickSpeed;
     this.adjustingTickSpeed = true;
+
+    this.server.openSocket();
 };
 
 
@@ -70,6 +82,9 @@ Game.prototype.processing = function () {
 
     this.server.sendGameStateUpdates();
 
+    for (let worldName in this.worlds) {
+        this.worlds[worldName].clearChangeList();
+    }
     let end = Date.now();
 
     //TODO improve later: Recession of lag

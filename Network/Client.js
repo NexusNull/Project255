@@ -3,12 +3,19 @@
  */
 
 var autoIncrement = 0;
-
+/**
+ * This object behaves as a storage object for general client data. That means data that is available while the client is offline.
+ * Data related to an active client should be stored in active client.
+ * @param authenticationToken
+ * @property {object} Client.entities - owned entities
+ * @property {string} Client.authenticationToken
+ * @property {number} Client.id - Ids start from 0
+ * @constructor Client
+ */
 var Client = function (authenticationToken) {
     this.id = autoIncrement++;
     this.authenticationToken = authenticationToken;
 
-    this.isConnected = false;
     this.entities = {};
 };
 

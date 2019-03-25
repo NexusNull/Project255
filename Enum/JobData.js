@@ -2,7 +2,7 @@
  * Created by Nexus on 13.08.2017.
  */
 
-var JobEnum = {
+var JobData = {
     Type: {
         NONE:0,
         TURN:1,
@@ -25,7 +25,7 @@ var JobEnum = {
         6:"Pick",
         7:"Place",
         8:"Attack",
-        9:"MINE"
+        9:"Mine"
     },
     verb: {
         0:"nothing",
@@ -41,4 +41,4 @@ var JobEnum = {
     }
 };
 
-module.exports = Object.freeze(JobEnum);
+module.exports = Object.freeze(JobData);

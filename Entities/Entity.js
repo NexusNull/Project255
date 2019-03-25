@@ -1,20 +1,19 @@
 /**
  * Created by Nexus on 13.08.2017.
  */
-var Game = require("../Game");
 
-var autoIncrement = 1;
+var autoIncrement = 0;
 
-var Entity = function (owner, health, maxHealth, power, maxPower) {
+var Entity = function (owner, maxHealth, maxPower) {
     this.id = autoIncrement++;
     this.owner = owner;
 
     owner.addEntity(this);
 
-    this.health = health;
+    this.health = maxHealth;
     this.maxHealth = maxHealth;
 
-    this.power = power;
+    this.power = 0;
     this.maxPower = maxPower;
 
     //Entities don't exist in the world when they are created, they are added to a world at a later point.
@@ -24,7 +23,7 @@ var Entity = function (owner, health, maxHealth, power, maxPower) {
     this.y = null;
     this.direction = null;
 
-    Game.addEntity(this);
+    game.addEntity(this);
 };
 
 Entity.prototype.process = function () {
@@ -32,6 +31,17 @@ Entity.prototype.process = function () {
 };
 
 Entity.prototype.setPosition = function (world, x, y, direction) {
+    if (this.world && this.x && this.y) {
+        let tile = this.world.getTileAt(this.x, this.y);
+        if (tile) {
+            this.occupant = null;
+        }
+    }
+    if (world) {
+        let tile = world.getTileAt(x, y);
+        tile.occupant = this;
+    }
+
     this.world = world;
     this.x = x;
     this.y = y;
@@ -42,7 +52,7 @@ Entity.prototype.setOwner = function (owner) {
     this.owner = owner;
 };
 
-Entity.accessible = function(entity){
+Entity.accessible = function (entity) {
     return {
         ownerId: entity.owner.id,
 
@@ -56,11 +66,12 @@ Entity.accessible = function(entity){
         type: "entity",
         x: entity.x,
         y: entity.y,
-        worldName: (entity.world)?entity.world.name:null,
+        direction: entity.direction,
+        worldName: (entity.world) ? entity.world.name : null,
     }
 };
 
-Entity.prototype.accessible = function(){
+Entity.prototype.accessible = function () {
     return Entity.accessible(this);
 };
 
@@ -71,7 +82,6 @@ Entity.setAutoIncrement = function (number) {
 Entity.getAutoIncrement = function () {
     return autoIncrement
 };
-
 
 
 module.exports = Entity;

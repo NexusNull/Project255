@@ -2,10 +2,10 @@
  * Created by Nexus on 13.08.2017.
  */
 
-const TileEnum = {
+const TileData = {
     Type: {
-        LOWGROUND: 0,
-        HIGHGROUND: 1,
+        LOW_GROUND: 0,
+        HIGH_GROUND: 1,
         WATER: 2,
     },
     Name: {
@@ -15,4 +15,4 @@ const TileEnum = {
     }
 };
 
-module.exports = Object.freeze(TileEnum);
+module.exports = Object.freeze(TileData);

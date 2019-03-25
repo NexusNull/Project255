@@ -1,102 +1,124 @@
 /**
  * Created by Nexus on 14.08.2017.
  */
-const JobEnum = require("../Jobs/JobEnum");
+const JobData = require("../Enum/JobData");
 const Job = require("../Jobs/Job");
 const Entity = require("./Entity");
-const TileEnum = require("../World/TileEnum");
-const Game = require("../Game");
+const TileData = require("../Enum/TileData");
+const UnitData = require("../Enum/UnitData");
 /**
  * Creates a unit
  * @param owner
- * @param health
- * @param maxHealth
- * @param power
- * @param maxPower
- * @param allowedJobs
- * @constructor
+ * @param {number} unitType
+ * @constructor Unit
  */
-var Unit = function (owner, health, maxHealth, power, maxPower, allowedJobs, currentJob, lastJob) {
-    Entity.apply(this, [owner, health, maxHealth, power, maxPower]);
+var Unit = function (owner, unitType) {
 
-    this.allowedJobs = [JobEnum.Type.NONE];
-    this.currentJob = currentJob;
-    this.lastJob = lastJob;
-    this.allowedJobs.concat(allowedJobs);
+    Entity.apply(this, [
+        owner,
+        UnitData.Properties[unitType].maxHealth,
+        UnitData.Properties[unitType].maxPower]
+    );
+
+    /**
+     * @typedef {Array<Job>} jobQueue
+     */
+    this.jobQueue = [{type:JobData.Type.NONE,time:0}];
+    this.jobLog = [];
     this.direction = 0;
+    this.unitType = unitType;
+};
+for(let key in Entity.prototype){
+    Unit.prototype[key] = Entity.prototype[key];
+}
 
+
+Unit.prototype.doJob = function (job) {
+    switch (job.type) {
+        case JobData.Type.ATTACK:
+
+            break;
+        case JobData.Type.BUILD:
+
+            break;
+        case JobData.Type.CRAFT:
+
+            break;
+        case JobData.Type.MOVE:
+            let currentTile = this.world.getTileAt(this.x, this.y);
+            let targetTile = this.getTargetTile();
+            if (targetTile)
+                if (targetTile.occupant === null && targetTile.type === TileData.Type.LOW_GROUND) {
+                    let targetPos = this.getTargetPosition();
+                    this.x = targetPos.x;
+                    this.y = targetPos.y;
+                    targetTile.occupant = this;
+                    currentTile.occupant = null;
+                }else {
+                    console.log("Can not move there.")
+                }
+            break;
+        case JobData.Type.PICK:
+
+            break;
+        case JobData.Type.PLACE:
+
+            break;
+        case JobData.Type.SCAN:
+
+            break;
+        case JobData.Type.TURN:
+            console.log(job);
+            if(job.options) {
+                let direction = job.options.direction;
+                if (direction >= 0 && direction <= 3) {
+                    this.direction = direction;
+                }
+            }
+            break;
+        case JobData.Type.MINE:
+
+            break;
+        default:
+
+            break;
+    }
+};
+/**
+ * @param {Job} job
+ */
+Unit.prototype.queueJob = function(job){
+    var jobProps = UnitData.Properties[this.unitType].jobCost[job.type];
+    if(jobProps.allowed){
+        job.time = jobProps.time;
+        this.jobQueue.push(job);
+    } else{
+        //TODO return error
+    }
 };
 
-Unit.prototype = Entity.prototype;
-Unit.prototype.constructor = Unit;
-
-Unit.prototype.doJob = function () {
-    var job = this.currentJob;
-    //Job in Progress
-    if (job.type !== JobEnum.Type.NONE) {
-        //Finish job
-        if (job.busyFor === 1) {
-            switch (job.type) {
-                case JobEnum.Type.ATTACK:
-
-                    break;
-                case JobEnum.Type.BUILD:
-
-                    break;
-                case JobEnum.Type.CRAFT:
-
-                    break;
-                case JobEnum.Type.MOVE:
-                    let currentTile = this.world.getTileAt(this.x, this.y);
-                    let targetPos;
-                    switch (this.direction) {
-                        case 0:
-                            targetPos = {x: this.x + 1, y: this.y};
-                            break;
-                        case 1:
-                            targetPos = {x: this.x, y: this.y + 1};
-                            break;
-                        case 2:
-                            targetPos = {x: this.x - 1, y: this.y};
-                            break;
-                        default:
-                            targetPos = {x: this.x, y: this.y - 1};
-                            break;
-                    }
-                    let targetTile = this.world.getTileAt(targetPos.x, targetPos.y);
-                    if (targetTile)
-                        if (targetTile.occupant === null && targetTile.type === TileEnum.Type.LOWGROUND) {
-                            this.x = targetPos.x;
-                            this.y = targetPos.y;
-                            targetTile.occupant = this;
-                            currentTile.occupant = null;
-                        }
-                    break;
-                case JobEnum.Type.PICK:
-
-                    break;
-                case JobEnum.Type.PLACE:
-
-                    break;
-                case JobEnum.Type.SCAN:
-
-                    break;
-                case JobEnum.Type.TURN:
-                    let direction = job.options.direction;
-                    if (direction >= 0 && direction <= 3) {
-                        this.direction = direction;
-                    }
-                    break;
-                case JobEnum.Type.MINE:
-
-                    break;
-            }
-
-            this.currentJob.type = JobEnum.Type.NONE;
-            this.currentJob.options = {};
-        }
-        job.busyFor--;
+Unit.prototype.getTargetPosition = function(){
+    let targetPos;
+    switch (this.direction) {
+        case 0:
+            targetPos = {x: this.x + 1, y: this.y};
+            break;
+        case 1:
+            targetPos = {x: this.x, y: this.y + 1};
+            break;
+        case 2:
+            targetPos = {x: this.x - 1, y: this.y};
+            break;
+        default:
+            targetPos = {x: this.x, y: this.y - 1};
+            break;
     }
+    return targetPos;
+};
+
+Unit.prototype.getTargetTile = function(){
+    let targetPos = this.getTargetPosition();
+    return this.world.getTileAt(targetPos.x, targetPos.y);
 };
 
 
@@ -106,48 +128,28 @@ Unit.prototype.stopJob = function () {
 };
 
 Unit.prototype.process = function () {
-    if (this.currentJob.type === JobEnum.Type.NONE) {
-        let targetPos;
-        switch (this.direction) {
-            case 0:
-                targetPos = {x: this.x + 1, y: this.y};
-                break;
-            case 1:
-                targetPos = {x: this.x, y: this.y + 1};
-                break;
-            case 2:
-                targetPos = {x: this.x - 1, y: this.y};
-                break;
-            default:
-                targetPos = {x: this.x, y: this.y - 1};
-                break;
-        }
-        let targetTile = this.world.getTileAt(targetPos.x, targetPos.y);
-
-        if (targetTile && targetTile.occupant === null && targetTile.type === TileEnum.Type.LOWGROUND) {
-            this.currentJob = new Job(JobEnum.Type.MOVE);
+    //Job logic
+    if(this.jobQueue.length > 0){
+        let job = this.jobQueue[0];
+        if(job.time === 0){
+            this.jobQueue.shift();
+            this.doJob(job);
+            this.jobLog.push(job)
         } else {
-            this.currentJob = new Job(JobEnum.Type.TURN, 1, {direction: (Math.floor(Math.random() * 4))})
+            job.time--;
         }
     }
-    this.doJob();
 };
 
-Unit.prototype.setJob = function (jobType) {
-    if (this.allowedJobs.indexOf(jobType) !== -1) {
-
-    } else {
-        throw new Error("Can't execute this Job");
-    }
-};
-
-Unit.accessible = function(unit){
+Unit.accessible = function (unit) {
     let data = Entity.accessible(unit);
     data.type = "unit";
+    data.unitType = this.unitType;
+    data.jobQueue = unit.jobQueue;
     return data;
 };
 
-Unit.prototype.accessible = function(){
+Unit.prototype.accessible = function () {
     return Unit.accessible(this);
 };
 module.exports = Unit;
