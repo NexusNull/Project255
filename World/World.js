@@ -21,6 +21,8 @@ var World = function (name) {
     this.entities = {};
     this.dataExchanger = publisher.createInterface();
     this.name = name;
+    this.participants = {};
+    this.participantsReady = false;
     this.dataExchanger.setDataSource(function () {
         return {
             name: "World1",
@@ -42,6 +44,8 @@ World.prototype.generateChunk = function (x, y) {
 
 
 World.prototype.doTick = function () {
+    if(!this.participantsReady)
+        return;
     this.tick++;
     var self = this;
     for (var id in this.entities) {
@@ -50,6 +54,7 @@ World.prototype.doTick = function () {
             entity.process();
         }
     }
+    this.participantsReady = false;
 };
 
 World.prototype.accessible = function () {
@@ -63,6 +68,7 @@ World.prototype.accessible = function () {
         entities.push(this.entities[id].accessible());
     }
     return {
+        participants: this.participants,
         chunks: chunks,
         entities: entities,
         tick: this.tick,
@@ -94,6 +100,11 @@ World.prototype.clearChangeList = function(){
 World.prototype.addEntity = function (entity, x, y, direction) {
     if (!entity)
         return false;
+    if(!this.participants[entity.owner.id]){
+        this.participants[entity.owner.id] = 1;
+    } else {
+        this.participants++;
+    }
     entity.setPosition(this, x, y, direction);
     this.entities[entity.id] = entity;
     return true;
@@ -105,6 +116,14 @@ World.prototype.addEntity = function (entity, x, y, direction) {
  * @param entity {Entity} the entity
  */
 World.prototype.removeEntity = function (entity) {
+    if(!this.participants[entity.owner.id]){
+        throw "Something went wrong, trying to decrement world entity participant counter but participant counter is at 0";
+    } else {
+        if(this.participants[entity.owner.id] === 1)
+            delete this.participants[entity.owner.id];
+        else
+            this.participants[entity.owner.id]--;
+    }
     entity.setPosition(null, null, null, null);
     delete this.entities[entity.id];
 };

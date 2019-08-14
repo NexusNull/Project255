@@ -3,6 +3,7 @@
  */
 
 var game = require("./Game");
+var webView = require("./WebView/main");
 var ItemData = require("./Enum/ItemData");
 global.game = game;
 

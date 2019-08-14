@@ -2,7 +2,7 @@
  * Created by Nexus on 25.08.2017.
  */
 
-var io = new require('socket.io');
+var io =  (require('socket.io'));
 var ActiveClient = require("./ActiveClient");
 var isSocketOpen = false;
 

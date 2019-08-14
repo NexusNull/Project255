@@ -3,8 +3,18 @@
  */
 
 var autoIncrement = 0;
-
+/**
+ *
+ * @param owner {Client}
+ * @param maxHealth {number}
+ * @param maxPower {number}
+ * @constructor
+ */
 var Entity = function (owner, maxHealth, maxPower) {
+    if(!owner){
+        throw "Can't create an entity without an owner";
+    }
+
     this.id = autoIncrement++;
     this.owner = owner;
 
