@@ -5,7 +5,7 @@
   "dependencies": {
     "alea": "0.0.9",
     "bot-web-interface": "git+https://github.com/Fansana/bot-web-interface.git",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "jquery": "^3.4.1",
     "nanotimer": "^0.3.15",
     "pngjs-image": "^0.11.7",
